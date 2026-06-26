@@ -1,0 +1,32 @@
+# Environment
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+postgres_data/
+neo4j_data/
+neo4j_logs/
+
+# Runtime
+*.log
+
+# Data
+data/raw/
+data/ncert/
+
+# OS
+.DS_Store
+Thumbs.db

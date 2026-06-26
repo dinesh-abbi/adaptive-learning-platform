@@ -1,0 +1,113 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: alp-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      - "15432:5432"
+
+    volumes:
+      - adaptive-postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - adaptive-network
+
+
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: alp-neo4j
+    restart: unless-stopped
+
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+      NEO4J_PLUGINS: '["apoc"]'
+
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+
+    ports:
+      - "17474:7474"
+      - "17687:7687"
+
+    volumes:
+      - adaptive-neo4j-data:/data
+      - adaptive-neo4j-logs:/logs
+
+    networks:
+      - adaptive-network
+
+
+  redis:
+    image: redis:7-alpine
+    container_name: alp-redis
+    restart: unless-stopped
+
+    ports:
+      - "16379:6379"
+
+    volumes:
+      - adaptive-redis-data:/data
+
+    networks:
+      - adaptive-network
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: alp-pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@adaptive.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+
+    ports:
+      - "15050:80"
+
+    volumes:
+      - adaptive-pgadmin-data:/var/lib/pgadmin
+
+    depends_on:
+      - postgres
+
+    networks:
+      - adaptive-network
+
+
+volumes:
+
+  adaptive-postgres-data:
+    external: true
+
+  adaptive-neo4j-data:
+    external: true
+
+  adaptive-neo4j-logs:
+    external: true
+
+  adaptive-redis-data:
+    external: true
+
+  adaptive-pgadmin-data:
+    external: true
+
+
+networks:
+
+  adaptive-network:
+    external: true
+    name: adaptive-learning-network
