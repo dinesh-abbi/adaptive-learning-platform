@@ -88,6 +88,38 @@ services:
       - adaptive-network
 
 
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+
+    container_name: alp-api
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./backend:/app
+
+    ports:
+      - "18000:8000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+      neo4j:
+        condition: service_started
+
+      redis:
+        condition: service_started
+
+    networks:
+      - adaptive-network
+
+
 volumes:
 
   adaptive-postgres-data:
